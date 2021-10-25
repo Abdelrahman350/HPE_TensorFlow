@@ -2,12 +2,14 @@ import tensorflow as tf
 from tensorflow.losses import softmax_cross_entropy
 from tensorflow.keras.layers import GlobalAveragePooling2D
 import numpy as np
-from tf.compat.v1.losses import huber_loss, MeanAbsoluteError, mean_squared_error
+from tensorflow.compat.v1.losses import huber_loss, mean_squared_error
+from tensorflow.keras.losses import MAE
+from tensorflow.keras.callbacks import ModelCheckpoint
 from .backbones.resnet import ResNet10, ResNet18
 from utils.data_utils.plotting_data import plot_gt_predictions
 
 class HOPENet:
-    def __init__(self, train_dataset, valid_dataset, class_num, input_size, loss='wrapped'):
+    def __init__(self, train_dataset, valid_dataset, class_num, input_size, backbone='ResNet18', loss='wrapped'):
         self.class_num = class_num
         self.input_size = input_size
         self.idx_tensor = [idx for idx in range(self.class_num)]
@@ -15,6 +17,8 @@ class HOPENet:
         self.train_dataset = train_dataset
         self.valid_dataset = valid_dataset
         self.epochs = 3
+        self.backbone = backbone
+        self.backbone = self.__backbone_handler()
         self.loss = loss
         self.__loss_angle = self.__loss_handler()
         self.model = self.__create_model()
@@ -23,7 +27,7 @@ class HOPENet:
     def __create_model(self):
         inputs = tf.keras.layers.Input(shape=(self.input_size, self.input_size, 3))
         
-        feature = ResNet18(weights='imagenet', include_top=False,
+        feature = self.backbone(weights='imagenet', include_top=False,
          input_shape=(self.input_size, self.input_size, 3))(inputs)
         
         feature = GlobalAveragePooling2D()(feature)
@@ -42,6 +46,15 @@ class HOPENet:
         model.compile(optimizer= tf.compat.v1.train.AdamOptimizer(learning_rate=0.00001), loss=losses)
         return model
     
+    def __backbone_handler(self):
+        if self.backbone == 'ResNet18':
+            return ResNet18
+        elif self.backbone == 'ResNet10':
+            return ResNet10
+        else:
+            print("This backbone is not implemented")
+            return
+
     def __loss_handler(self):
         if self.loss == 'wrapped':
             return self.__wrapped_loss
@@ -64,7 +77,7 @@ class HOPENet:
         cls_loss = softmax_cross_entropy(onehot_labels=oh_labels, logits=y_pred)
         # Wrapped loss
         pred_cont = tf.reduce_sum(tf.nn.softmax(y_pred) * self.idx_tensor, 1) * 3 - 99
-        MAWE = MeanAbsoluteError(labels=cont_true, predictions=pred_cont)
+        MAWE = MAE(y_true=cont_true, y_pred=pred_cont)
         reg_loss = tf.math.minimum(MAWE**2, (360-MAWE)**2)
         # Total loss
         total_loss = alpha * reg_loss + beta * cls_loss
@@ -79,7 +92,7 @@ class HOPENet:
         cls_loss = softmax_cross_entropy(onehot_labels=oh_labels, logits=y_pred)
         # Huber loss
         pred_cont = tf.reduce_sum(tf.nn.softmax(y_pred) * self.idx_tensor, 1) * 3 - 99
-        reg_loss = huber_loss(labels=cont_true, predictions=pred_cont)
+        reg_loss = huber_loss(y_true=cont_true, y_pred=pred_cont)
         # Total loss
         total_loss = alpha * reg_loss + beta * cls_loss
         return total_loss
@@ -93,7 +106,7 @@ class HOPENet:
         cls_loss = softmax_cross_entropy(onehot_labels=oh_labels, logits=y_pred)
         # MSE loss
         pred_cont = tf.reduce_sum(tf.nn.softmax(y_pred) * self.idx_tensor, 1) * 3 - 99
-        reg_loss = mean_squared_error(labels=cont_true, predictions=pred_cont)
+        reg_loss = mean_squared_error(y_true=cont_true, y_pred=pred_cont)
         # Total loss
         total_loss = alpha * reg_loss + beta * cls_loss
         return total_loss
@@ -107,7 +120,7 @@ class HOPENet:
         cls_loss = softmax_cross_entropy(onehot_labels=oh_labels, logits=y_pred)
         # MAE loss
         pred_cont = tf.reduce_sum(tf.nn.softmax(y_pred) * self.idx_tensor, 1) * 3 - 99
-        reg_loss = MeanAbsoluteError(labels=cont_true, predictions=pred_cont)
+        reg_loss = MAEgi(y_true=cont_true, y_pred=pred_cont)
         # Total loss
         total_loss = alpha * reg_loss + beta * cls_loss
         return total_loss
@@ -120,7 +133,7 @@ class HOPENet:
         if load_weight:
             self.model.load_weights(model_path)
 
-        model_checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(
+        model_checkpoint_callback = ModelCheckpoint(
             filepath=model_path,
             save_weights_only=True,
             monitor='val_loss',
