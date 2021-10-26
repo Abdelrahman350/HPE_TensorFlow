@@ -28,16 +28,16 @@ json_file_path = "../../Datasets/pt2d.json"
 pt2d = load_json(json_file_path)
 
 training_data_generator = DataGenerator(partition_LP['train'], labels, pt2d,
- batch_size=16, input_shape=(224, 224, 3), shuffle=True)
+ batch_size=32, input_shape=(224, 224, 3), shuffle=True)
 
 validation_data_generator = DataGenerator(partition_LP['valid'], labels, pt2d,
- batch_size=16, input_shape=(224, 224, 3), shuffle=True)
+ batch_size=32, input_shape=(224, 224, 3), shuffle=True)
 
 net = HOPENet(train_dataset=training_data_generator,
  valid_dataset=validation_data_generator, class_num=66, input_size=224, backbone=backbone, loss=loss_name)
 
-data_name = "_LP"
-model_name = backbone + data_name + '_'+ loss_name + '.h5'
+training_data = "_LP"
+model_name = backbone + training_data + '_'+ loss_name + '.h5'
 net.model.load_weights("checkpoints/" + model_name)
 net.model.summary()
 

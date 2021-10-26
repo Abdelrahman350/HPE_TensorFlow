@@ -17,7 +17,7 @@ class HOPENet:
         self.train_dataset = train_dataset
         self.valid_dataset = valid_dataset
         self.epochs = 3
-        self.backbone = backbone
+        self.backbone_name = backbone
         self.backbone = self.__backbone_handler()
         self.loss = loss
         self.__loss_angle = self.__loss_handler()
@@ -47,9 +47,9 @@ class HOPENet:
         return model
     
     def __backbone_handler(self):
-        if self.backbone == 'ResNet18':
+        if self.backbone_name == 'ResNet18':
             return ResNet18
-        elif self.backbone == 'ResNet10':
+        elif self.backbone_name == 'ResNet10':
             return ResNet10
         else:
             print("This backbone is not implemented")
@@ -199,5 +199,5 @@ class HOPENet:
         for i, (images, [batch_yaw, batch_pitch, batch_roll]) in enumerate(dataset_test):
             predictions = self.predict(images)
             gt_poses = batch_yaw, batch_pitch, batch_roll
-            plot_gt_predictions(images, gt_poses, predictions, i, backbone=self.backbone)
+            plot_gt_predictions(images, gt_poses, predictions, i, backbone=self.backbone_name)
             
