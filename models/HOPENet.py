@@ -5,6 +5,7 @@ import numpy as np
 from tensorflow.compat.v1.losses import huber_loss, mean_squared_error
 from tensorflow.keras.losses import MAE
 from tensorflow.keras.callbacks import ModelCheckpoint
+from tensrflow.compat.v1.train import AdamOptimizer
 from .backbones.resnet import ResNet10, ResNet18
 from utils.data_utils.plotting_data import plot_gt_predictions
 
@@ -43,7 +44,7 @@ class HOPENet:
             'roll':self.__loss_angle,
         }
         
-        model.compile(optimizer= tf.compat.v1.train.AdamOptimizer(learning_rate=0.00001), loss=losses)
+        model.compile(optimizer= AdamOptimizer(learning_rate=0.000001), loss=losses)
         return model
     
     def __backbone_handler(self):
