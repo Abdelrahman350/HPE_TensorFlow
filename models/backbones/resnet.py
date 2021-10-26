@@ -229,6 +229,6 @@ def ResNet10(input_shape=None, input_tensor=None, weights=None, classes=1000, in
         input_tensor=input_tensor,
         include_top=include_top,
         classes=classes,
-        weights=weights,
+        weights=None,
         **kwargs
     )
