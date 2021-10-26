@@ -120,7 +120,7 @@ class HOPENet:
         cls_loss = softmax_cross_entropy(onehot_labels=oh_labels, logits=y_pred)
         # MAE loss
         pred_cont = tf.reduce_sum(tf.nn.softmax(y_pred) * self.idx_tensor, 1) * 3 - 99
-        reg_loss = MAEgi(y_true=cont_true, y_pred=pred_cont)
+        reg_loss = MAE(y_true=cont_true, y_pred=pred_cont)
         # Total loss
         total_loss = alpha * reg_loss + beta * cls_loss
         return total_loss
@@ -199,5 +199,5 @@ class HOPENet:
         for i, (images, [batch_yaw, batch_pitch, batch_roll]) in enumerate(dataset_test):
             predictions = self.predict(images)
             gt_poses = batch_yaw, batch_pitch, batch_roll
-            plot_gt_predictions(images, gt_poses, predictions, i)
+            plot_gt_predictions(images, gt_poses, predictions, i, backbone=self.backbone)
             

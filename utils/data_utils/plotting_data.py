@@ -40,7 +40,7 @@ def show(image):
     plt.imshow(image)
     plt.axis('off')
 
-def plot_gt_predictions(images, gt_poses, predicted_poses, batch_number, show=False, threshold=15):
+def plot_gt_predictions(images, gt_poses, predicted_poses, batch_number, backbone, show=False, threshold=15):
     yaw, pitch, roll = gt_poses
     yaw_p, pitch_p, roll_p = predicted_poses
     i = 0
@@ -66,11 +66,11 @@ def plot_gt_predictions(images, gt_poses, predicted_poses, batch_number, show=Fa
         if yaw_error > threshold:
             final_frame = cv2.hconcat((image, image_predicted))
             final_frame = cv2.cvtColor(final_frame, cv2.COLOR_RGB2BGR)
-            cv2.imwrite(f"../Outputs/image_{batch_number}_{i}_yaw_error.png", final_frame*255)
+            cv2.imwrite(f"../Outputs/"+backbone+"/image_{batch_number}_{i}_yaw_error.png", final_frame*255)
         if pitch_error > threshold:
             final_frame = cv2.hconcat((image, image_predicted))
             final_frame = cv2.cvtColor(final_frame, cv2.COLOR_RGB2BGR)
-            cv2.imwrite(f"../Outputs/image_{batch_number}_{i}_pitch_error.png", final_frame*255)
+            cv2.imwrite(f"../Outputs/"+backbone+"/image_{batch_number}_{i}_pitch_error.png", final_frame*255)
         if roll_error > threshold:
             final_frame = cv2.hconcat((image, image_predicted))
             final_frame = cv2.cvtColor(final_frame, cv2.COLOR_RGB2BGR)
