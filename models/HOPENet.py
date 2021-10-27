@@ -1,10 +1,11 @@
+import numpy as np
 import tensorflow as tf
 from tensorflow.losses import softmax_cross_entropy
-import numpy as np
+from tensorflow.keras.losses import binary_crossentropy
 from tensorflow.compat.v1.losses import huber_loss, mean_squared_error
 from tensorflow.keras.losses import MAE
 from tensorflow.keras.callbacks import ModelCheckpoint
-from tensrflow.compat.v1.train import AdamOptimizer
+from tensorflow.compat.v1.train import AdamOptimizer
 from tensorflow.keras.layers import Input, Dense, GlobalAveragePooling2D
 from .backbones.resnet import ResNet10, ResNet18
 from utils.data_utils.plotting_data import plot_gt_predictions
@@ -44,7 +45,7 @@ class HOPENet:
             'roll':self.__loss_angle,
         }
         
-        model.compile(optimizer= AdamOptimizer(learning_rate=0.000001), loss=losses)
+        model.compile(optimizer= AdamOptimizer(learning_rate=1e-5), loss=losses)
         return model
     
     def __backbone_handler(self):
@@ -75,7 +76,7 @@ class HOPENet:
         cont_true = y_true[:,1]
         oh_labels = tf.cast(tf.one_hot(tf.cast(bin_true, tf.int32), 66), dtype=bin_true.dtype)
 
-        cls_loss = softmax_cross_entropy(onehot_labels=oh_labels, logits=y_pred)
+        cls_loss = binary_crossentropy(y_true=oh_labels, y_pred=y_pred)
         # Wrapped loss
         pred_cont = tf.reduce_sum(tf.nn.softmax(y_pred) * self.idx_tensor, 1) * 3 - 99
         MAWE = MAE(y_true=cont_true, y_pred=pred_cont)
