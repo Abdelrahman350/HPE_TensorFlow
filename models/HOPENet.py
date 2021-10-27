@@ -1,11 +1,11 @@
 import tensorflow as tf
 from tensorflow.losses import softmax_cross_entropy
-from tensorflow.keras.layers import GlobalAveragePooling2D
 import numpy as np
 from tensorflow.compat.v1.losses import huber_loss, mean_squared_error
 from tensorflow.keras.losses import MAE
 from tensorflow.keras.callbacks import ModelCheckpoint
 from tensrflow.compat.v1.train import AdamOptimizer
+from tensorflow.keras.layers import Input, Dense, GlobalAveragePooling2D
 from .backbones.resnet import ResNet10, ResNet18
 from utils.data_utils.plotting_data import plot_gt_predictions
 
@@ -26,15 +26,15 @@ class HOPENet:
         self.model_fit = None
 
     def __create_model(self):
-        inputs = tf.keras.layers.Input(shape=(self.input_size, self.input_size, 3))
+        inputs = Input(shape=(self.input_size, self.input_size, 3))
         
         feature = self.backbone(weights='imagenet', include_top=False,
          input_shape=(self.input_size, self.input_size, 3))(inputs)
         
         feature = GlobalAveragePooling2D()(feature)
-        fc_yaw = tf.keras.layers.Dense(name='yaw', units=self.class_num)(feature)
-        fc_pitch = tf.keras.layers.Dense(name='pitch', units=self.class_num)(feature)
-        fc_roll = tf.keras.layers.Dense(name='roll', units=self.class_num)(feature)
+        fc_yaw = Dense(name='yaw', units=self.class_num)(feature)
+        fc_pitch = Dense(name='pitch', units=self.class_num)(feature)
+        fc_roll = Dense(name='roll', units=self.class_num)(feature)
     
         model = tf.keras.Model(inputs=inputs, outputs=[fc_yaw, fc_pitch, fc_roll], name='HOPENet')
 
