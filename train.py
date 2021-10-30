@@ -16,7 +16,7 @@ config.gpu_options.allow_growth = True
 session = InteractiveSession(config=config)
 
 data_name = "_LP"
-backbone = "ResNet18"
+backbone = "ResNet10"
 loss_name = 'wrapped'
 json_file_path = "../../Datasets/labels.json"
 labels = load_json(json_file_path)
@@ -37,4 +37,4 @@ net = HOPENet(train_dataset=training_data_generator,
  valid_dataset=validation_data_generator, class_num=66, input_size=224, backbone=backbone, loss=loss_name)
 
 model_name = backbone + data_name + '_'+ loss_name + '.h5'
-net.train(model_name, load_weight=False, epochs=100)
+net.train(model_name, load_weight=True, epochs=100)

@@ -1,2 +1,2 @@
 ResNet18: val_loss: 12.8878 - val_yaw_loss: 3.0692 - val_pitch_loss: 5.6586 - val_roll_loss: 4.1599
-ResNet10: val_loss: 28.5212 - val_yaw_loss: 6.8430 - val_pitch_loss: 12.0565 - val_roll_loss: 9.6217
+ResNet10: val_loss: val_loss: 21.4880 - val_yaw_loss: 5.4780 - val_pitch_loss: 9.2297 - val_roll_loss: 6.7804
